@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<header class="masthead bg-index text-white text-center py-4">
+  <div class="container d-flex align-items-center flex-column pt-2">
+    <h2>Movies Store</h2>
+    <p>Your Ticket to Unlimited Entertainment!</p>
+  </div>
+</header>
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col mx-auto text-center mb-3">
+        <h3>Welcome to the best movie store!</h3>
+        <h4>View, shop, and purchase movies instantly!</h4>
+        <div class="mt-5">
+          <button class="btn bg-dark text-white ptt">
+          <a class="nav-link" href="{% url 'movies.index' %}">See Movies</a>
+        </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
