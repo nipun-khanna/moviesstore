@@ -30,6 +30,30 @@
             </div>
           </form>
         </p>
+        <div class="mb-4">
+          <h2>Ratings</h2>
+          {% if template_data.rating_count > 0 %}
+            <p>
+              Average: {{ template_data.avg_rating|floatformat:1 }}/5
+              {{ template_data.rating_count }} ratings
+            </p>
+          {% else %}
+            <p>No ratings</p>
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            {% if template_data.user_rating %}
+              <p>Your rating: {{ template_data.user_rating.score }}/5</p>
+            {% endif %}
+
+            <form method="post" action="{% url 'movies.rate' id=template_data.movie.id %}">
+              {% csrf_token %}
+              {{ template_data.rating_form.score.label_tag }}
+              {{ template_data.rating_form.score }}
+              <button class="btn bg-dark text-white" type="submit">Save</button>
+            </form>
+          {% endif %}
+        </div>
         <h2>Reviews</h2>
         <hr />
         <ul class="list-group">

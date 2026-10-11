@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Movie, Review
+from django.db.models import Avg, Count
+from .models import Movie, Review, Rating
+from .forms import RatingForm
 
 def index(request):
     search_term = request.GET.get('search')
@@ -16,10 +18,25 @@ def index(request):
 def show(request, id):
     movie = Movie.objects.get(id=id)
     reviews = Review.objects.filter(movie=movie)
+    rating = Rating.objects.filter(movie=movie).aggregate(
+        average=Avg('score'),
+        count=Count('id')
+    )
+    
+    user_rating = None
+    if request.user.is_authenticated:
+        user_rating = Rating.objects.filter(movie=movie, user=request.user).first()
+        
+    rating_form = RatingForm(initial={'score': user_rating.score if user_rating else None})
+    
     template_data = {}
     template_data['title'] = movie.name
     template_data['movie'] = movie
     template_data['reviews'] = reviews
+    template_data['avg_rating'] = rating['average']
+    template_data['rating_count'] = rating['count']
+    template_data['user_rating'] = user_rating
+    template_data['rating_form'] = rating_form
     return render(request, 'movies/show.html', {'template_data': template_data})
 
 @login_required
@@ -64,3 +81,20 @@ def report_review(request, id, review_id):
     review = get_object_or_404(Review, id=review_id)
     review.delete()
     return redirect('movies.show', id=id)
+
+@login_required
+def rate(request, id):
+    if request.method == 'POST':
+        movie = get_object_or_404(Movie, id=id)
+        form = RatingForm(request.POST)
+        
+        if form.is_valid():
+            Rating.objects.update_or_create(
+                movie=movie,
+                user=request.user,
+                defaults={'score': form.cleaned_data["score"]}
+                )
+            return redirect('movies.show', id=id)
+        return redirect('movies.show', id=id)
+    else:
+        return redirect('movies.show', id=id)
