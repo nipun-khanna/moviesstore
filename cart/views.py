@@ -6,6 +6,10 @@ from .models import Order, Item
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
+from django.contrib import admin
+from .forms import TopBuyersForm
+from django.db.models.functions import Coalesce
+
 
 def top_buyer(request):
     buyer = (
@@ -16,6 +20,22 @@ def top_buyer(request):
         .first()
     )
     return render(request, 'top_buyer.html', {'buyer': buyer})
+
+def top_buyers(request):
+    form = TopBuyersForm(request.GET)
+    buyers = (
+        get_user_model().objects
+        .annotate(movies_purchased=Coalesce(Sum('order__item__quantity'), 0))
+        .order_by('-movies_purchased', 'username')
+    )
+    if form.is_valid() and form.cleaned_data['size']:
+        buyers = buyers[:form.cleaned_data['size']]
+
+    template_data = admin.site.each_context(request)
+    template_data['form'] = form
+    template_data['buyers'] = buyers
+
+    return render(request, 'top_buyers.html', template_data)
 
 def index(request):
     cart_total = 0

@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Top Buyers{% endblock %}
+
+{% block content %}
+<h1>Top buyers</h1>
+<form method = "get">
+    {{form.as_p}}
+    <button type="submit">Show</button>
+</form>
+
+<table>
+    <tr><th>User</th><th>Movies purchased</th></tr>
+    {% for buyer in buyers %}
+    <tr><td>{{buyer.username}}</td><td>{{buyer.movies_purchased}}</td></tr>
+    {%empty%}
+    <tr><td colspan="2">No users yet</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}
