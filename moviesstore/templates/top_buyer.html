@@ -1,0 +1,9 @@
+{% block content %}
+{% if buyer %}
+<p> User: {{buyer.username}}</p>
+<p>movies purhcased : {{buyer.movies_purchased}}</p>
+{% else %}
+<p> no movies purchased yet
+</p>
+{% endif %}
+{% endblock %}
